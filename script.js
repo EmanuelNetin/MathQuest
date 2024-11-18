@@ -254,7 +254,7 @@ function answerQuestion(combo) {
 
         availableQuestions.splice(currentQuestion, 1);
         if (availableQuestions.length == 0) {
-            document.querySelector(".question").innerHTML = `<div class="stageEnd">Fase concluída!</div>`
+            document.querySelector(".question").innerHTML = `<div class="stageEnd text-white text-xl text-center font-bold">Fase concluída!</div>`
             nextStageTimer();
         } else {
             cycleQuestion(0);
@@ -313,16 +313,25 @@ function startStageTimer() {
     }, 1000)
 }
 
-function nextStageTimer() {
+function nextStageTimer(starting) {
     clearInterval(timerID)
-    timer = 5;
+    timer = 3;
     timerDisplay.innerHTML = timer;
     cdTimerID = setInterval(() => {
         timer--;
         timerDisplay.innerHTML = timer;
 
+        if (timer == 1 && starting != true){
+            reloadScreen();
+        }
+            
         if (timer == -1) {
-            advanceStage();
+            if (starting == true){
+                startStageTimer();
+                advanceStage();
+            } else{
+                advanceStage();
+            }
             clearInterval(cdTimerID)
         }
     }, 1000)
@@ -332,6 +341,13 @@ function resetStageTimer() {
     clearInterval(timerID)
     startStageTimer()
     timerDisplay.innerHTML = timer;
+}
+
+function reloadScreen(){
+    wrapper.classList.add("opacity-0");
+    setTimeout(() => {
+        wrapper.classList.remove("opacity-0");
+    }, 2000);
 }
 
 
@@ -363,8 +379,16 @@ function advanceStage() {
 }
 
 function startGame() {
-    startStageTimer()
-    advanceStage()
+    let wrapper = document.querySelector("#wrapper");
+    let tutorial = document.querySelector("#tutorial");
+
+    tutorial.classList.add("opacity-0");
+    setTimeout(() => {
+        tutorial.remove();
+        wrapper.classList.remove("opacity-0");
+    }, 1000);
+    
+    nextStageTimer(true)
 }
 
 function reloadPage() {
