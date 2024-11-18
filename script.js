@@ -154,8 +154,8 @@ function cursorElement() {
 
 function correctElement() {
     let createCheckmark = document.createElement("span");
-    createCheckmark.setAttribute("class", "checkmark text-bold text-sky-400");
-    const checkmarkIcon = document.createTextNode(" [✓] ");
+    createCheckmark.setAttribute("class", "checkmark font-black text-xl text-[#36F1CD] opacity-30");
+    const checkmarkIcon = document.createTextNode(" ✓ ");
 
     createCheckmark.appendChild(checkmarkIcon);
     document.querySelector('.question').insertBefore(createCheckmark, document.getElementById(`question${availableQuestions[currentQuestion]}`));
@@ -163,12 +163,18 @@ function correctElement() {
     checkmark = document.querySelector('.checkmark')
 
     const el = document.getElementById(`question${availableQuestions[currentQuestion]}`);
-    el.classList.remove("text-[#36F1CD]", "font-extrabold", 'text-3xl');
+    el.classList.add("opacity-30");
+    el.classList.remove("font-extrabold", 'text-3xl');
 }
 
 function cycleQuestion(place) {
     let el = document.getElementById(`question${availableQuestions[currentQuestion]}`);
-    el.classList.remove("text-[#36F1CD]", "font-extrabold", 'text-3xl');
+    
+    if (el){
+        el.classList.add("opacity-30");
+        el.classList.remove("text-[#36F1CD]", "font-extrabold", 'text-3xl');
+    }
+    
     if (typeof place == "number") {
         currentQuestion = place;
         cursorElement();
@@ -199,15 +205,23 @@ function cycleQuestion(place) {
 // Sistema de Combo
 let comboGauge = 0
 let progressBar = document.querySelector('.progress-bar');
+let comboButton = document.querySelector('#comboButton')
 progressBar.classList.add(`w-0`);
 
 function updateCombo() {
-    let comboGaugeDisplay = document.querySelector('.combonumber');
-    comboGaugeDisplay.innerHTML = comboGauge
-
     progressBar.classList.remove("w-0");
-    progressBar.classList.remove(`w-${comboGauge - 1}/5`);
-    progressBar.classList.add(`w-${comboGauge}/5`);
+    progressBar.classList.remove(`w-[${(comboGauge - 1) * 10}%]`);
+    progressBar.classList.add(`w-[${(comboGauge) * 10}%]`);
+
+    if (comboGauge == 10){
+        progressBar.classList.add("bg-gradient-to-r", "from-indigo-500", "from-25%", "via-sky-500", "via-75%", "to-emerald-500", "to-100%");
+        comboButton.classList.add("bg-[#36F1CD]", "hover:scale-105");
+        comboButton.classList.remove("bg-[#465573]", "opacity-50");
+    } else{
+        progressBar.classList.remove("w-[100%]", "bg-gradient-to-r", "from-indigo-500", "from-25%", "via-sky-500", "via-75%", "to-emerald-500", "to-100%");
+        comboButton.classList.remove("bg-[#36F1CD]", "hover:scale-105");
+        comboButton.classList.add("bg-[#465573]", "opacity-50");
+    }
 }
 
 function increaseCombo() {
@@ -240,7 +254,7 @@ function answerQuestion(combo) {
 
         availableQuestions.splice(currentQuestion, 1);
         if (availableQuestions.length == 0) {
-            document.querySelector(".question").innerHTML = "Fase concluída!"
+            document.querySelector(".question").innerHTML = `<div class="stageEnd">Fase concluída!</div>`
             nextStageTimer();
         } else {
             cycleQuestion(0);
@@ -265,15 +279,23 @@ answerBox.addEventListener('keyup', function (e) {
     }
 })
 
-// Troca com TAB
+// Troca com TAB, Combo com ESPAÇO
 function checkForTab(event) {
     if (event.key == "Tab") {
         event.preventDefault();
         cycleQuestion()
+    } else {
+        if (event.which == 32) {
+            event.preventDefault();
+            useCombo();
+        }
     }
 }
 
 answerBox.onkeydown = checkForTab;
+
+
+
 
 // Contador de timer
 let timer = 0;
@@ -350,11 +372,10 @@ function reloadPage() {
 }
 
 function endGame() {
-    document.querySelector("body").innerHTML = `
-        <div class="flex flex-col gap-2 justify-center">
-    <p class="text-white text-5xl font-bold">Fim de jogo</p>
-    <p class="text-white text-5xl font-bold"> Fase alcançada: ${currentStage}</p>
-    <button onclick="reloadPage()" class="answerquestion bg-[#36F1CD] p-4 rounded">Tente outra vez</button>
-</div>
-    `
+    document.querySelector("body").innerHTML = `<div class="flex flex-col gap-2 justify-center">
+                                                    <p class="text-white text-5xl text-center font-bold m-5">FIM DE JOGO</p>
+                                                    <p class="text-white text-xl text-center font-bold"> Fase alcançada:</p>
+                                                    <p class="text-[#36F1CD] text-9xl text-center place-self-center align-middle font-bold m-7">${currentStage}</p>
+                                                    <button onclick="reloadPage()" class="answerquestion bg-[#36F1CD] m-5 p-4 rounded">Jogar novamente</button>
+                                                </div>`
 }
